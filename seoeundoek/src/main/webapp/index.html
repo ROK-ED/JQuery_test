@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+	
+	$(document).ready(function () {
+	
+		$.ajax({
+			url:'ToDoServlet',
+			method: 'get',
+			dataType: 'json',
+			success: loadToDoResult,
+			error: function (error) {
+				window.alert(`Error: ${error.status}, Message: ${error.statusText}`);
+			}
+		})
+	});
+	 
+
+	//리스트 가지고오는것 성공 실행한 콜백함수
+	function loadToDoResult(result) {
+		console.log(result);
+/* 		
+		if(result.retCode == 'Success'){
+		var data = result.retVal;
+		data.forEach(item => {
+			$('#todoList').append(makeToDoView(item));	
+		});
+		}else{
+			window.alert(result.retVal);//내용쪽 에러는 이쪽으로 출력
+		}
+*/
+	}
+/*
+	//데이터 한건 가져와서 출력하는 부분.
+	function makeToDoView(ToDo) {
+		var div = $('<div>');
+		$(div).attr('content', ToDo.content);
+
+		
+		$(div).data('content', ToDo.content);
+		
+		$(div).addClass('ToDo');
+		
+		$(div).append(//
+			$('<strong>').text(ToDo.content),
+			$('<input>').attr('type','button').val('수정').click(viewUpdateForm),
+			$('<input>').attr('type','button').val('삭제').click(confirmDeletion)
+		);
+		return div;
+	}
+	//수정버튼을 누르면 실행할 함수
+	function viewUpdateForm(e) {
+		var content = e.target.parentNode.getAttribute('content');
+		
+		$.ajax({
+			url:'ToDoServlet',
+			method:'post',
+			data:{
+				content: content,
+				cmd: 'search'
+			},
+			dataType: 'json',
+			success: function (result) {
+				console.log(result);
+				$('#toDoUpdate').css('display','block');
+				$('form[name="updateForm"]>textarea[name="content"]').val(result.retVal.content);
+			
+				//수정버튼 누른 대상 하위에 보여주도록
+				$(e.target.parentNode).after($('#toDoUpdate'));
+				//after 해당요소 뒤에 삽입////////////////////////////////////////////////
+				
+				//등록화면 숨김
+				$("#toDoAdd").hide();
+				//hide 화면에만 숨김/////////////////////////////////////////////////////
+			},
+			error: function (error) {
+				//console.log(error);
+				window.alert(`Error: ${error.status}, Message: ${error.statusText}`);//서버쪽 에러는 이쪽으로 출력
+			}
+		});
+		
+		
+		
+		
+	}
+	//삭제버튼을 누르면 실행할 함수
+	function confirmDeletion(e) {
+		if(confirm('삭제하시겠습니까?')){
+			var content = $(e.target.parentNode).attr('content');
+			$.ajax({
+				url:'ToDoServlet',
+				method:'post',
+				data:{
+					content: content,
+					cmd: 'delete'
+				},
+				dataType: 'json',
+				success: function (result) {
+					console.log(result);
+					alert(`content: ${result.retVal} 삭제되었습니다!!`)
+					$('#'+content).remove();
+				},
+				error: function (error) {
+					console.log(error);
+					alert(`삭제 처리중 에러가 발생했습니다.`)
+				}
+			});
+		}
+	}
+	
+	//게시판 등록
+	function addToDo() {
+		$.ajax({
+			url:'ToDoServlet',
+			method:'post',
+			data:{
+				cmd: 'insert',
+				content: $('form[name="addForm"]>textarea[name=\"content\"]').val()	
+			},
+			dataType: 'json',
+			success: addResult,
+			error: function (error) {
+				console.log(error);
+				//window.alert(`Error: ${error.status}, Message: ${error.statusText}`);//서버쪽 에러는 이쪽으로 출력
+			}
+		});
+	}
+	
+	//등록 콜백 함수.
+	function addResult(result) {
+		var obj =result.retVal;
+		$('#toDoList').append(makeToDoView(obj));
+		//초기화
+		$('form[name="addForm"]>input[type="text"]').val("");
+		$('form[name="addForm"]>textarea').val("");
+		$('form[name="addForm"]>input[type="text"]').focus();
+		
+		
+	}
+	
+	//변경 버튼 클릭시. DB 반영. 화면 반영.
+	function updateToDo() {
+		var contentVal = $('form[name="updateForm"]>textarea[name="content"]').val();
+		$.ajax({
+			url:'ToDoServlet',
+			method:'post',
+			data:{
+				cmd: 'update',
+				content: contentVal
+			},
+			dataType: 'json',
+			success: function (result) {
+				console.log(result);
+				//consloe.log($('#'+idVal));
+				//$('#'+idVal).childern().eq(0).val(result.retVal.name);
+				var newDiv = makeToDoView(result.retVal);
+				$('#'+idVal).replaceWith(newDiv);
+				$('#toDoUpdate').hide();
+				$("#toDoAdd").show(); 
+				
+				
+			},
+			error: function (error) {
+				console.log(error);
+				//window.alert(`Error: ${error.status}, Message: ${error.statusText}`);//서버쪽 에러는 이쪽으로 출력
+			}
+		});
+		
+	}
+	//취소버튼
+	function cancelUpdate() {
+		//$("#commentAdd").show(); 
+		$("#toDoAdd").css('display','block');
+		//$('#commentUpdate').hide();
+		$('#toDoUpdate').css('display','none');
+	}
+	 */
+</script>
+</head>
+<body>
+
+	<h3>TODO List</h3>
+	<!--글등록 화면  -->
+	<div id="toDoAdd"></div>
+	<form action="" name="addForm">
+		<input type="text" name="content"> <input type="button"
+			value="+" onclick="addToDo()">
+	</form>
+	<!--리스트위치  -->
+	<h3>리스트위치</h3>
+	<div id="toDoList"></div>
+
+
+	<!--글수정 화면  -->
+	<div id="toDoUpdate" style="display: none">
+		<form action="" name="updateForm">
+			내용:
+			<textarea name="content" cols="20" rows="1"></textarea>
+			<br> <input type="button" value="변경" onclick="updateToDo()">
+			<input type="button" value="취소" onclick="cancelUpdate()">
+		</form>
+</body>
+</html>
+
+
+<!-- 
+CREATE TABLE todo_list(
+content VARCHAR2(100)
+); -->
+
