@@ -3,62 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script>
-	
-	$(document).ready(function () {
-	
-		$.ajax({
-			url:'ToDoServlet',
-			method: 'get',
-			dataType: 'json',
-			success: loadToDoResult,
-			error: function (error) {
-				window.alert(`Error: ${error.status}, Message: ${error.statusText}`);
-			}
-		})
-	});
-	 
+<link rel="stylesheet" href="style.css">
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
 
+<script src="jquery-3.6.0.js"></script>
+<script>
+
+$(document).ready(onradyFnc);
+function onradyFnc() {
+	$.ajax({
+		url:'todoServlet',
+		method: 'get',
+		dataType: 'json',
+		success: loadTodoResult,
+		error: function (error) {
+			//console.log(error);
+			window.alert(`Error: ${error.status}, Message: ${error.statusText}`);//서버쪽 에러는 이쪽으로 출력
+		}
+	});
+	
+}
 	//리스트 가지고오는것 성공 실행한 콜백함수
-	function loadToDoResult(result) {
-		console.log(result);
-/* 		
+	function loadTodoResult(result) {
+		console.log(result.retCode);
+ 	
 		if(result.retCode == 'Success'){
 		var data = result.retVal;
 		data.forEach(item => {
-			$('#todoList').append(makeToDoView(item));	
+			$('#todoList').append(makeTodoView(item));	
 		});
 		}else{
 			window.alert(result.retVal);//내용쪽 에러는 이쪽으로 출력
 		}
-*/
+  
 	}
-/*
+
 	//데이터 한건 가져와서 출력하는 부분.
-	function makeToDoView(ToDo) {
+	function makeTodoView(todo) {
+		console.log(todo.content);
 		var div = $('<div>');
-		$(div).attr('content', ToDo.content);
+		$(div).attr('id', todo.content);
 
 		
-		$(div).data('content', ToDo.content);
+		$(div).data('content', todo.content);
 		
-		$(div).addClass('ToDo');
+		$(div).addClass('todo');
 		
 		$(div).append(//
-			$('<strong>').text(ToDo.content),
-			$('<input>').attr('type','button').val('수정').click(viewUpdateForm),
-			$('<input>').attr('type','button').val('삭제').click(confirmDeletion)
+			$('<p>').text(todo.content),
+			$('<input>').attr('type','button').val('EDIT').click(viewUpdateForm),
+			$('<input>').attr('type','button').val('REMOVE').click(confirmDeletion)
 		);
 		return div;
 	}
+ 	var before = "";
+ 	var targetChange = "";
 	//수정버튼을 누르면 실행할 함수
 	function viewUpdateForm(e) {
-		var content = e.target.parentNode.getAttribute('content');
-		
+		var content = e.target.parentNode.getAttribute('id');
+		targetChange = e.target.parentNode;
+		before = content;
 		$.ajax({
-			url:'ToDoServlet',
+			url:'todoServlet',
 			method:'post',
 			data:{
 				content: content,
@@ -66,17 +72,20 @@
 			},
 			dataType: 'json',
 			success: function (result) {
-				console.log(result);
-				$('#toDoUpdate').css('display','block');
+				
+				$('#todoUpdate').css('display','block');
 				$('form[name="updateForm"]>textarea[name="content"]').val(result.retVal.content);
 			
 				//수정버튼 누른 대상 하위에 보여주도록
-				$(e.target.parentNode).after($('#toDoUpdate'));
+				$(e.target.parentNode).after($('#todoUpdate'));
 				//after 해당요소 뒤에 삽입////////////////////////////////////////////////
 				
 				//등록화면 숨김
-				$("#toDoAdd").hide();
+				$("#todoAdd").hide();
 				//hide 화면에만 숨김/////////////////////////////////////////////////////
+				
+				//console.log($('form[name="updateForm"]>textarea[name="content"]').val(result.retVal.content));
+				
 			},
 			error: function (error) {
 				//console.log(error);
@@ -91,9 +100,9 @@
 	//삭제버튼을 누르면 실행할 함수
 	function confirmDeletion(e) {
 		if(confirm('삭제하시겠습니까?')){
-			var content = $(e.target.parentNode).attr('content');
+			var content = $(e.target.parentNode).attr('id');
 			$.ajax({
-				url:'ToDoServlet',
+				url:'todoServlet',
 				method:'post',
 				data:{
 					content: content,
@@ -103,7 +112,7 @@
 				success: function (result) {
 					console.log(result);
 					alert(`content: ${result.retVal} 삭제되었습니다!!`)
-					$('#'+content).remove();
+					$(e.target.parentNode).remove();
 				},
 				error: function (error) {
 					console.log(error);
@@ -114,13 +123,15 @@
 	}
 	
 	//게시판 등록
-	function addToDo() {
+	function addTodo() {
+	
+		console.log($('form[name="addForm"]>input[name=\"content\"]').val());
 		$.ajax({
-			url:'ToDoServlet',
+			url:'todoServlet',
 			method:'post',
 			data:{
 				cmd: 'insert',
-				content: $('form[name="addForm"]>textarea[name=\"content\"]').val()	
+				content: $('form[name="addForm"]>input[name=\"content\"]').val()	
 			},
 			dataType: 'json',
 			success: addResult,
@@ -134,7 +145,7 @@
 	//등록 콜백 함수.
 	function addResult(result) {
 		var obj =result.retVal;
-		$('#toDoList').append(makeToDoView(obj));
+		$('#todoList').append(makeTodoView(obj));
 		//초기화
 		$('form[name="addForm"]>input[type="text"]').val("");
 		$('form[name="addForm"]>textarea').val("");
@@ -143,25 +154,30 @@
 		
 	}
 	
+	
 	//변경 버튼 클릭시. DB 반영. 화면 반영.
-	function updateToDo() {
+	function updateTodo() {
 		var contentVal = $('form[name="updateForm"]>textarea[name="content"]').val();
+		
+		console.log(before);
+		console.log(contentVal);
+		
 		$.ajax({
-			url:'ToDoServlet',
+			url:'todoServlet',
 			method:'post',
 			data:{
 				cmd: 'update',
+				before: before,
 				content: contentVal
 			},
 			dataType: 'json',
 			success: function (result) {
-				console.log(result);
-				//consloe.log($('#'+idVal));
-				//$('#'+idVal).childern().eq(0).val(result.retVal.name);
-				var newDiv = makeToDoView(result.retVal);
-				$('#'+idVal).replaceWith(newDiv);
-				$('#toDoUpdate').hide();
-				$("#toDoAdd").show(); 
+				//console.log(result);
+				console.log(result.retVal);
+				var newDiv = makeTodoView(result.retVal);
+				$('#'+before).replaceWith(newDiv);
+				$('#todoUpdate').hide();
+				$("#todoAdd").show(); 
 				
 				
 			},
@@ -170,39 +186,41 @@
 				//window.alert(`Error: ${error.status}, Message: ${error.statusText}`);//서버쪽 에러는 이쪽으로 출력
 			}
 		});
+
 		
 	}
 	//취소버튼
 	function cancelUpdate() {
 		//$("#commentAdd").show(); 
-		$("#toDoAdd").css('display','block');
+		$("#todoAdd").css('display','block');
 		//$('#commentUpdate').hide();
-		$('#toDoUpdate').css('display','none');
+		$('#todoUpdate').css('display','none');
 	}
-	 */
+ 
+
 </script>
+
 </head>
 <body>
-
-	<h3>TODO List</h3>
+	
+	<h3><strong>TODO</strong> List</h3>
+	
 	<!--글등록 화면  -->
-	<div id="toDoAdd"></div>
+	<div id="todoAdd"></div>
 	<form action="" name="addForm">
-		<input type="text" name="content"> <input type="button"
-			value="+" onclick="addToDo()">
+		<input type="text" name="content" placeholder=" What do you want to do..."> 
+		<input type="button" value="+" onclick="addTodo()">
 	</form>
 	<!--리스트위치  -->
-	<h3>리스트위치</h3>
-	<div id="toDoList"></div>
+	<div id="todoList"></div>
 
 
 	<!--글수정 화면  -->
-	<div id="toDoUpdate" style="display: none">
+	<div id="todoUpdate" style="display: none">
 		<form action="" name="updateForm">
-			내용:
-			<textarea name="content" cols="20" rows="1"></textarea>
-			<br> <input type="button" value="변경" onclick="updateToDo()">
-			<input type="button" value="취소" onclick="cancelUpdate()">
+			내용: <textarea name="content" cols="20" rows="1"></textarea><br> 
+			<input type="button" value="EDIT" onclick="updateTodo()">
+			<input type="button" value="CANCEL" onclick="cancelUpdate()">
 		</form>
 </body>
 </html>
@@ -211,5 +229,6 @@
 <!-- 
 CREATE TABLE todo_list(
 content VARCHAR2(100)
-); -->
+); 
+-->
 

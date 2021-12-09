@@ -1,16 +1,16 @@
 package com.edu.todo;
 
-public class ToDoVO {
+public class todoVO {
 	private String content;
 	
 	
 	
-	public ToDoVO(String content) {
+	public todoVO(String content) {
 		super();
 		this.content = content;
 	}
 	
-	public ToDoVO() {
+	public todoVO() {
 		
 	}
 

@@ -13,13 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-@WebServlet("/ToDoServlet")
-public class ToDoServlet extends HttpServlet {
+@WebServlet("/todoServlet")
+public class todoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	public ToDoServlet() {
+	public todoServlet() {
 		super();
 	}
+/*	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -32,19 +33,20 @@ public class ToDoServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		super.doPost(req, resp);
 	}
-/*
+*/	
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/json;charset=UTF-8");
 
 		JSONObject obj = new JSONObject();
-		ToDoDAO dao = new ToDoDAO();
+		todoDAO dao = new todoDAO();
 
 		try {
-			List<ToDoVO> list = dao.getToDoList();
+			List<todoVO> list = dao.getTodoList();
 			JSONArray ary = new JSONArray();
-			for (ToDoVO vo : list) {
+			for (todoVO vo : list) {
 				JSONObject ino = new JSONObject();
 				ino.put("content", vo.getContent());
 
@@ -63,23 +65,22 @@ public class ToDoServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		doGet(request, response);
 
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/json;charset=UTF-8");
 
 		String cmd = request.getParameter("cmd");
 		String content = request.getParameter("content");
-
-		ToDoDAO dao = new ToDoDAO();
+		String before = request.getParameter("before");
+		todoDAO dao = new todoDAO();
 		JSONObject obj = new JSONObject();
 
 		if (cmd.equals("insert")) {
-			ToDoVO vo = new ToDoVO();
+			todoVO vo = new todoVO();
 			vo.setContent(content);
-
+			
 			try {
-				dao.insertToDo(vo);
+				dao.insertTodo(vo);
 				JSONObject inobj = new JSONObject();
 				inobj.put("content", vo.getContent());
 
@@ -93,11 +94,13 @@ public class ToDoServlet extends HttpServlet {
 			}
 			response.getWriter().print(obj.toString());
 		} else if (cmd.equals("update")) {
-			ToDoVO vo = new ToDoVO();
+			todoVO vo = new todoVO();
 			vo.setContent(content);
-
+			
 			try {
-				dao.updateToDo(vo);
+				
+				dao.updateTodo(before, content);
+				
 				JSONObject ino = new JSONObject();
 				ino.put("content", vo.getContent());
 
@@ -115,7 +118,7 @@ public class ToDoServlet extends HttpServlet {
 		} else if (cmd.equals("delete")) {
 
 			try {
-				dao.deleteToDo(content);
+				dao.deleteTodo(content);
 
 				obj.put("retCode", "Success");
 				obj.put("retVal", content);
@@ -128,9 +131,9 @@ public class ToDoServlet extends HttpServlet {
 			}
 			response.getWriter().print(obj.toString());
 		} else if (cmd.equals("search")) {
-			ToDoVO vo;
+			todoVO vo;
 			try {
-				vo = dao.findToDo(content);
+				vo = dao.findTodo(content);
 				JSONObject ino = new JSONObject();
 				ino.put("content", vo.getContent());
 
@@ -143,6 +146,7 @@ public class ToDoServlet extends HttpServlet {
 			}
 			response.getWriter().print(obj.toString());
 		}
+
 	}// end of doPost();
-*/
+
 }
