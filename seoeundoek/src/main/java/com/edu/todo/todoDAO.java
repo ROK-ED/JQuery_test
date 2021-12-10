@@ -69,8 +69,8 @@ public class todoDAO extends DAO {
 //		Map<String, String> map = new HashMap<String, String>();
 //		String sql = "update todo_list set content = ? where content=?";
 //		connect();
-//		psmt = conn.prepareStatement(sql);
-//		psmt.setString(1, content);
+//		psmt = conn.prepareStatement(be);
+//		psmt.setString(1, map.get(sql));
 //		psmt.setString(2, before);
 //	}
 

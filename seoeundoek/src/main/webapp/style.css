@@ -33,9 +33,11 @@ body>form {
 
 body > form > input[type=text]:nth-child(1){
     border-radius: 10px;
+    color: black;
     width: 88%;
     height: 18px;
 }
+
 
 body > form > input[type=button]:nth-child(2){
     border-radius: 100%;
